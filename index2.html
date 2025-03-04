@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FLASH AI S2</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #121212;
+            font-family: 'Poppins', sans-serif;
+            color: white;
+            text-align: center;
+        }
+        .container {
+            width: 90%;
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 10px;
+            box-shadow: 0 0 15px #ff9800;
+        }
+        .title {
+            font-size: 22px;
+            font-weight: 600;
+            text-shadow: 0 0 5px #ff9800;
+        }
+        .result-box, .history-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            background: linear-gradient(45deg, #ff9800, #ff5722);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 0 10px #ff9800;
+        }
+        .btn:hover {
+            opacity: 0.9;
+        }
+        .history {
+            display: none;
+            text-align: left;
+            margin-top: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 5px;
+        }
+        th, td {
+            padding: 5px;
+            border-bottom: 1px solid white;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 class="title">FLASH AI S2 🚀</h1>
+    <div class="result-box">
+        <h3>🕒 Period: <span id="period">Loading...</span></h3>
+        <h3>⏳ Timer: <span id="timer">00:00</span></h3>
+        <h3>🎲 Result: <span id="result">Pending</span></h3>
+    </div>
+    
+    <button class="btn" onclick="showResult()">Show Result</button>
+    
+    <div class="history-box">
+        <h3>📜 History</h3>
+        <div class="history" id="history">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Period</th>
+                        <th>Result</th>
+                        <th>Win/Loss</th>
+                    </tr>
+                </thead>
+                <tbody id="history-data"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <button class="btn" onclick="toggleHistory()">📜 Toggle History</button>
+</div>
+
+<script>
+    let historyData = {};
+    let currentPeriod = null;
+    let currentResult = "Pending";
+    let userPrediction = null;
+
+    function getRandomResult() {
+        return Math.random() < 0.5 ? "Big" : "Small";
+    }
+
+    function updatePeriodAndTimer() {
+        let now = new Date();
+        
+        // India Standard Time (IST)
+        let istOffset = 330 * 60 * 1000;  
+        let istTime = new Date(now.getTime() + istOffset);
+
+        let year = istTime.getFullYear();
+        let month = String(istTime.getMonth() + 1).padStart(2, "0");
+        let day = String(istTime.getDate()).padStart(2, "0");
+        let hours = istTime.getHours();
+        let minutes = istTime.getMinutes();
+        let seconds = istTime.getSeconds();
+        let remainingSeconds = 60 - seconds;
+
+        // Your Period Number Logic
+        let totalMinutes = hours * 60 + minutes;
+        let periodNumber = `${year}${month}${day}${1000 + (totalMinutes - 330)}`;
+
+        // Update only if period changes
+        if (currentPeriod !== periodNumber) {
+            currentPeriod = periodNumber;
+            currentResult = "Pending";  
+        }
+
+        // Update UI
+        document.getElementById("period").innerText = currentPeriod;
+        document.getElementById("timer").innerText = `00:${String(remainingSeconds).padStart(2, "0")}`;
+        document.getElementById("result").innerText = currentResult;
+    }
+
+    function showResult() {
+        if (currentResult === "Pending") {
+            currentResult = getRandomResult();
+            document.getElementById("result").innerText = currentResult;
+
+            if (userPrediction) {
+                let winLoss = userPrediction === currentResult ? "Win" : "Loss";
+                historyData[currentPeriod] = { result: currentResult, status: winLoss };
+                updateHistory();
+            }
+        }
+    }
+
+    function updateHistory() {
+        let historyTable = document.getElementById("history-data");
+        historyTable.innerHTML = "";
+
+        for (let period in historyData) {
+            let row = `<tr>
+                <td>${period}</td>
+                <td>${historyData[period].result}</td>
+                <td>${historyData[period].status}</td>
+            </tr>`;
+            historyTable.innerHTML += row;
+        }
+    }
+
+    function toggleHistory() {
+        let historyDiv = document.getElementById("history");
+        historyDiv.style.display = historyDiv.style.display === "none" ? "block" : "none";
+    }
+
+    setInterval(updatePeriodAndTimer, 1000);
+</script>
+
+</body>
+</html>
